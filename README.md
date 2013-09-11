@@ -1,5 +1,5 @@
 
-# model-collection
+# collection
 
   Collections that are part of models in the form of `component/model`.
 
@@ -49,6 +49,8 @@ user.todos().add(todo);
 ```js
 user.todos().remove(user.todos().first());
 
+user.todos().first().destroy();
+
 ```
 
 ### Replace all the models in a collection
@@ -60,25 +62,12 @@ user.todos([todo1, todo2]);
 
 ```
 
-### Save to database
 
-```js
-user.save(); // /users/bob => { name: "Bob", todos: ["todo_id1", "todo_id2"] }
+## Plugins
 
-user.todos().add({title: "Title 3"});
+Use plugins by calling `collection.use(plugin)` prior to `model().use(collection)`.
 
-user.save(); // /users/bob => { name: "Bob", todos: ["todo_id1", "todo_id2", "todo_id3"] }
-
-users.todos().first().title("Title New");
-
-user.save(); // /todos/todo_id1 => { title: "Title New" }
-
-user.todos().first().destroy();
-
-user.save(); // /users/bob => { name: "Bob", todos: ["todo_id2", "todo_id3"] }
-
-```
-
+For an example of a plugin, see [treygriffith/collection-save](http://github.com/treygriffith/collection-save), which adds methods to assist with automatically saving collection members
 
 ## Testing
 
