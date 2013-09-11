@@ -1,4 +1,5 @@
-var Collection = require('./lib/collection');
+var Collection = require('./lib/collection')
+  , buffer = require('buffer');
 
 
 /**
@@ -8,18 +9,7 @@ var Collection = require('./lib/collection');
  */
 
 module.exports = function (Model) {
-  return bind(Model);
-};
-
-
-/**
- * Add a `.collection` method to the Model
- *
- * @param {Function} Model  The model constructor.
- */
-
-function bind (Model) {
-
+  
   /**
    * Add a collection to this Model
    *
@@ -40,8 +30,7 @@ function bind (Model) {
 
     return this;
   };
-
-}
+};
 
 /**
  * Instantiate a new collection at the specified attribute
@@ -49,6 +38,7 @@ function bind (Model) {
  * @param {Object} model model instance to add the collection to
  * @param {String} name Name of the attribute where the model lives
  * @param {Function} Constructor The model constructor of the members of the collection
+ * @api private
  */
 
 function createCollection (model, name, Constructor, options) {
@@ -57,50 +47,53 @@ function createCollection (model, name, Constructor, options) {
   model.attrs[name] = model.attrs[name] || [];
 
   var collection = new Collection();
+  collection.Model = Constructor;
+  collection.model = model;
+  collection.name = name;
 
-  ['add', 'remove'].forEach(function (event) {
+  model[name] = function (val) {
+    if (arguments.length == 0) return collection;
+    collection.replace(val);
+  };
+
+  model.on('saving', function () {
+    if (options.updateChangedModels !== false) collection.updateChangedModels();
+    if (options.saveNewModels !== false) collection.saveNewModels();
+  });
+
+  bubbleChanges(collection, ['add', 'remove', 'placeholder']);
+
+  if (options.saveOnPlaceholder) {
+    collection.on('placeholder', buffer(function () {
+      model.save();
+    }, 100));
+  }
+
+  return collection;
+}
+
+/**
+ * Bubble `events` on the collection into `change` events on the Model attribute
+ * @param  {Object} collection Collection to listen to for events
+ * @param  {Array} events     Array of strings with events to listen for
+ * @api private
+ */
+
+function bubbleChanges(collection, events) {
+
+  var model = collection.model
+    , Model = model.model;
+
+  events.forEach(function (event) {
 
     collection.on(event, function () {
       var val = model.attrs[name];
       model.dirty[name] = val;
-      model.model.emit('change', model, name, val, val);
-      model.model.emit('change ' + name, model, val, val);
+      Model.emit('change', model, name, val, val);
+      Model.emit('change ' + name, model, val, val);
       model.emit('change', name, val, val);
       model.emit('change ' + name, val, val);
     });
 
   });
-
-  model[name] = function (val) {
-    if(arguments.length == 0) return collection;
-    collection.replace(val);
-  };
-
-  model.on('saving', function () {
-
-    if(options.saveChangedModels !== false) {
-      collection
-        .select(function (model) {
-          return !!Object.keys(model.dirty).length && !model.isNew();
-        })
-        .each(function (model) {
-          model.update();
-        });
-    }
-
-    if(options.saveNewModels !== false) {
-      collection
-        .select(function (model) {
-          return model.isNew();
-        })
-        .each(function (model) {
-          model.save();
-        });
-    }
-
-  });
-
-  collection.Model = Constructor;
-  collection.model = model;
-  collection.name = name;
 }

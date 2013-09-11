@@ -15,11 +15,14 @@
     "component/each": "*",
     "paulmillr/async-each": "*",
     "component/emitter": "*",
-    "component/enumerable": "*"
+    "component/enumerable": "*",
+    "ramitos/sgen": "*",
+    "treygriffith/buffer": "*"
   },
   "development": {
     "component/assert": "*",
-    "component/type":
+    "component/type": "*",
+    "segmentio/model": "*"
   },
   "scripts": [
     "index.js",
