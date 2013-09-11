@@ -35,7 +35,7 @@ function bind (Model) {
     this.attr(name, options);
 
     this.on('construct', function (model) {
-      createCollection(model, name, Constructor);
+      createCollection(model, name, Constructor, options);
     });
 
     return this;
@@ -51,8 +51,9 @@ function bind (Model) {
  * @param {Function} Constructor The model constructor of the members of the collection
  */
 
-function createCollection (model, name, Constructor) {
+function createCollection (model, name, Constructor, options) {
 
+  options = options || {};
   model.attrs[name] = model.attrs[name] || [];
 
   var collection = new Collection();
@@ -74,6 +75,30 @@ function createCollection (model, name, Constructor) {
     if(arguments.length == 0) return collection;
     collection.replace(val);
   };
+
+  model.on('saving', function () {
+
+    if(options.saveChangedModels !== false) {
+      collection
+        .select(function (model) {
+          return !!Object.keys(model.dirty).length && !model.isNew();
+        })
+        .each(function (model) {
+          model.update();
+        });
+    }
+
+    if(options.saveNewModels !== false) {
+      collection
+        .select(function (model) {
+          return model.isNew();
+        })
+        .each(function (model) {
+          model.save();
+        });
+    }
+
+  });
 
   collection.Model = Constructor;
   collection.model = model;

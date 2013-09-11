@@ -15,11 +15,11 @@
     "component/each": "*",
     "paulmillr/async-each": "*",
     "component/emitter": "*",
-    "component/enumerable": "*",
-    "visionmedia/superagent": "*"
+    "component/enumerable": "*"
   },
   "development": {
-    "component/assert": "*"
+    "component/assert": "*",
+    "component/type":
   },
   "scripts": [
     "index.js",

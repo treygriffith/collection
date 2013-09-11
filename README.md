@@ -1,47 +1,84 @@
-# model-setters
 
-  Lets a model specify custom getters and setters for attributes.
+# model-collection
 
-## Installation
-
-    $ component install treygriffith/model-setters
+  Collections that are part of models in the form of `component/model`.
 
 ## API
 
+### Add a collection to a model
+
 ```js
-var defaults = require('model-setters')
-  , model = require('model');
+var model = require('model')
+  , collections = require('collection');
 
-// all specified up front
-var person = model('person')
-  .use(setters({
-    name: {
-      get: function (name) {
-        return name.toUpperCase();
-      },
-      set: function (name) {
-        return name.toLowerCase();
-      }
-    },
-    age: {
-      set: function (age) {
-        return parseInt(age, 10);
-      }
-    } 
-  }))
+var Todo = model('todo')
+  .attr('title')
+  .attr('text')
+  .attr('status')
+
+var User = model('user')
+  .use(collections)
   .attr('name')
-  .attr('age');
+  .collection('todos', Todo);
 
-// or specified individually
-var person = model
-  .use(setters)
-  .attr('name', {
-    get: function (name) { return name.toUpperCase(); }
-    set: function (name) { return name.toLowerCase(); }
-  })
-  .attr('age', { set: function (age) { return parseInt(age, 10); } });
 ```
 
-## License
+### Add Models to a collection
+
+```js
+var user = new User({
+  name: "Bob"
+});
+
+user.todos().add({
+  title: "My New Item",
+  text: "So much to do"
+});
+
+```
+
+### Remove models from a collection
+
+```js
+user.todos().remove(user.todos().first());
+
+```
+
+### Replace all the models in a collection
+
+```js
+user.todos(['todo_id1', 'todo_id2']);
+user.todos([{title: 'Title 1'}, {title: 'Title 2'}]);
+user.todos([todo1, todo2]);
+
+```
+
+### Save to database
+
+```js
+user.save(); // /users/bob => { name: "Bob", todos: ["todo_id1", "todo_id2"] }
+
+user.todos().add({title: "Title 3"});
+
+user.save(); // /users/bob => { name: "Bob", todos: ["todo_id1", "todo_id2", "todo_id3"] }
+
+users.todos().first().title("Title New");
+
+user.save(); // /todos/todo_id1 => { title: "Title New" }
+
+user.todos().first().destroy();
+
+user.save(); // /users/bob => { name: "Bob", todos: ["todo_id2", "todo_id3"] }
+
+```
+
+
+## Testing
+
+```
+$ make test
+```
+
+# License
 
   MIT

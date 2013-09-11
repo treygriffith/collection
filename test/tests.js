@@ -1,6 +1,6 @@
-describe('model-setters', function () {
+describe('model-collection', function () {
 
-  var setters = require('model-setters')
+  var collection = require('model-collection')
     , assert = require('component-assert')
     , model = require('segmentio-model')
     , type = require('component-type');
