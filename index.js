@@ -1,4 +1,5 @@
-var proto = require('./lib/proto');
+var proto = require('./lib/proto')
+  , Emitter = require('emitter');
 
 /**
  * Plugin.
@@ -7,7 +8,7 @@ var proto = require('./lib/proto');
  */
 
 var collections = module.exports = function (Model) {
-  return bind(Model, this.plugins);
+  return bind(Model, this.plugins || collections.plugins);
 };
 
 /**
@@ -85,7 +86,9 @@ function createCollection (name, Constructor) {
   }
 
   Collection.collectionName = name;
-  Collection.Model = Model;
+  Collection.Model = Constructor;
+
+  Emitter(Collection);
 
   /**
    * Use the given plugin `fn()`.
@@ -102,8 +105,8 @@ function createCollection (name, Constructor) {
 
   Collection.prototype = {};
   Collection.prototype.collection = Collection;
-  Collection.prototype.Model = Model;
   Collection.prototype.name = name;
+  Collection.prototype.Model = Constructor;
   for(var key in proto) Collection.prototype[key] = proto[key];
 
   return Collection;

@@ -11,6 +11,7 @@ describe('collection', function () {
 
     var User = model('user')
       .use(collection)
+      .attr('id')
       .collection('todos', Todo);
 
     var user = new User();
@@ -24,10 +25,12 @@ describe('collection', function () {
   it('should create a new instance of the model when an attribute object is added', function () {
 
     var Todo = model('todo')
+      .attr('id')
       .attr('name')
       .attr('content');
 
     var User = model('user')
+      .attr('id')
       .use(collection)
       .collection('todos', Todo);
 
@@ -45,10 +48,12 @@ describe('collection', function () {
   it('should keep an existing instance of a model that is added', function () {
 
     var Todo = model('todo')
+      .attr('id')
       .attr('name')
       .attr('content');
 
     var User = model('user')
+      .attr('id')
       .use(collection)
       .collection('todos', Todo);
 
@@ -71,19 +76,20 @@ describe('collection', function () {
       .attr('content');
 
     var User = model('user')
+      .attr('id')
       .use(collection)
       .collection('todos', Todo);
 
     var user = new User();
     var todo = new Todo({
-      id: 1
+      id: 1,
       name: "something",
       content: "something else"
     });
 
     user.todos().add(todo);
 
-    assert(user.attrs.todos[0].id === 1);
+    assert(user.attrs.todos[0] === 1);
   });
 
   it('should remove a model from the collection', function () {
@@ -94,12 +100,13 @@ describe('collection', function () {
       .attr('content');
 
     var User = model('user')
+      .attr('id')
       .use(collection)
       .collection('todos', Todo);
 
     var user = new User();
     var todo = new Todo({
-      id: 1
+      id: 1,
       name: "something",
       content: "something else"
     });
@@ -119,15 +126,14 @@ describe('collection', function () {
       .attr('name')
       .attr('content');
 
-    Todo.request = new Request();
-
     var User = model('user')
+      .attr('id')
       .use(collection)
       .collection('todos', Todo);
 
     var user = new User();
     var todo = new Todo({
-      id: 1
+      id: 1,
       name: "something",
       content: "something else"
     });
@@ -136,12 +142,12 @@ describe('collection', function () {
 
     user.todos([{
       id: 2,
-      title: "Something",
+      name: "Something",
       content: "blah"
     },
     {
       id: 1,
-      title: "something else",
+      name: "something else",
       content: "blu"
     }]);
 
@@ -161,6 +167,7 @@ describe('collection', function () {
       .attr('content');
 
     var User = model('user')
+      .attr('id')
       .use(collection)
       .collection('todos', Todo);
 
@@ -168,12 +175,12 @@ describe('collection', function () {
 
     user.todos([{
       id: 2,
-      title: "Something",
+      name: "Something",
       content: "blah"
     },
     {
       id: 1,
-      title: "something else",
+      name: "something else",
       content: "blu"
     }]);
 
