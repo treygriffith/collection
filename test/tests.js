@@ -1,6 +1,6 @@
-describe('model-collection', function () {
+describe('collection', function () {
 
-  var collection = require('model-collection')
+  var collection = require('collection')
     , assert = require('component-assert')
     , model = require('segmentio-model')
     , type = require('component-type');
