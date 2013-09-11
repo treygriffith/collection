@@ -35,6 +35,13 @@ user.todos().add({
   text: "So much to do"
 });
 
+var todo = new Todo({
+  title: "My other item",
+  text: "things are looking up!"
+});
+
+user.todos().add(todo);
+
 ```
 
 ### Remove models from a collection
