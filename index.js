@@ -1,6 +1,5 @@
-var Collection = require('./lib/collection')
+var proto = require('./lib/proto')
   , buffer = require('buffer');
-
 
 /**
  * Plugin.
@@ -8,7 +7,22 @@ var Collection = require('./lib/collection')
  * @param {Function} values  The Model.
  */
 
-module.exports = function (Model) {
+var collections = module.exports = function (Model) {
+  return bind(Model, this.plugins);
+};
+
+/**
+ * Use a plugin
+ * @param  {Function} plugin Plugin to apply to collections created
+ * @return {Function}        new collections plugin
+ */
+collections.use = function (plugin) {
+  return this.bind({ plugins: this.plugins.concat(plugin), use: this.use });
+};
+
+collections.plugins = [];
+
+function bind(Model, plugins) {
   
   /**
    * Add a collection to this Model
@@ -24,52 +38,86 @@ module.exports = function (Model) {
 
     this.attr(name, options);
 
+    var Collection = createCollection(name, Constructor, options);
+
+    plugins.forEach(function(fn) {
+      Collection.use(fn);
+    });
+
     this.on('construct', function (model) {
-      createCollection(model, name, Constructor, options);
+      new Collection(model, options);
     });
 
     return this;
   };
-};
 
-/**
- * Instantiate a new collection at the specified attribute
- *
- * @param {Object} model model instance to add the collection to
- * @param {String} name Name of the attribute where the model lives
- * @param {Function} Constructor The model constructor of the members of the collection
- * @api private
- */
+  return Model;
+}
 
-function createCollection (model, name, Constructor, options) {
+function createCollection (name, Constructor) {
 
-  options = options || {};
-  model.attrs[name] = model.attrs[name] || [];
+  /**
+   * Initialize a new collection on `model`.
+   *
+   * @param {Object} model
+   * @param {Options} options options for initializing the collection
+   * @api public
+   */
+  
+  function Collection(model, options) {
+    var collection = this;
 
-  var collection = new Collection();
-  collection.Model = Constructor;
-  collection.model = model;
-  collection.name = name;
+    this.models = [];
+    this.options = options = options || {};
+    model.attrs[name] = model.attrs[name] || [];
 
-  model[name] = function (val) {
-    if (arguments.length == 0) return collection;
-    collection.replace(val);
-  };
+    model[name] = function (val) {
+      if (arguments.length == 0) return collection;
+      collection.replace(val);
+    };
 
-  model.on('saving', function () {
-    if (options.updateChangedModels !== false) collection.updateChangedModels();
-    if (options.saveNewModels !== false) collection.saveNewModels();
-  });
+    model.on('saving', function () {
+      if (options.updateChangedModels !== false) collection.updateChangedModels();
+      if (options.saveNewModels !== false) collection.saveNewModels();
+    });
 
-  bubbleChanges(collection, ['add', 'remove', 'placeholder']);
+    bubbleChanges(collection, ['add', 'remove', 'placeholder']);
 
-  if (options.saveOnPlaceholder) {
-    collection.on('placeholder', buffer(function () {
-      model.save();
-    }, 100));
+    if (options.saveOnPlaceholder) {
+      collection.on('placeholder', buffer(function () {
+        model.save();
+      }, 100));
+    }
+
+    this.replace(model.attrs[name]);
+    this.collection.emit('construct', this, this.models);
+
+    return this;
   }
 
-  return collection;
+  Collection.collectionName = name;
+  Collection.Model = Model;
+
+  /**
+   * Use the given plugin `fn()`.
+   *
+   * @param {Function} fn
+   * @return {Function} self
+   * @api public
+   */
+
+  Collection.use = function(fn) {
+    fn(this);
+    return this;
+  };
+
+  Collection.prototype = {};
+  Collection.prototype.collection = Collection;
+  Collection.prototype.Model = Model;
+  Collection.prototype.name = name;
+  for(var key in proto) Collection.prototype[key] = proto[key];
+
+  return Collection;
 }
 
 /**
