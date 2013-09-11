@@ -1,5 +1,4 @@
-var proto = require('./lib/proto')
-  , buffer = require('buffer');
+var proto = require('./lib/proto');
 
 /**
  * Plugin.
@@ -67,6 +66,7 @@ function createCollection (name, Constructor) {
   function Collection(model, options) {
     var collection = this;
 
+    this.model = model;
     this.models = [];
     this.options = options = options || {};
     model.attrs[name] = model.attrs[name] || [];
@@ -76,18 +76,7 @@ function createCollection (name, Constructor) {
       collection.replace(val);
     };
 
-    model.on('saving', function () {
-      if (options.updateChangedModels !== false) collection.updateChangedModels();
-      if (options.saveNewModels !== false) collection.saveNewModels();
-    });
-
     bubbleChanges(collection, ['add', 'remove', 'placeholder']);
-
-    if (options.saveOnPlaceholder) {
-      collection.on('placeholder', buffer(function () {
-        model.save();
-      }, 100));
-    }
 
     this.replace(model.attrs[name]);
     this.collection.emit('construct', this, this.models);

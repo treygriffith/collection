@@ -16,8 +16,7 @@
     "paulmillr/async-each": "*",
     "component/emitter": "*",
     "component/enumerable": "*",
-    "ramitos/sgen": "*",
-    "treygriffith/buffer": "*"
+    "ramitos/sgen": "*"
   },
   "development": {
     "component/assert": "*",
