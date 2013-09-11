@@ -1,0 +1,31 @@
+{
+  "name": "model-collection",
+  "repo": "treygriffith/model-collection",
+  "description": "Elegant data collections",
+  "version": "0.0.1",
+  "keywords": [
+    "collection",
+    "model",
+    "orm",
+    "db",
+    "database"
+  ],
+  "dependencies": {
+    "component/clone": "*",
+    "component/each": "*",
+    "paulmillr/async-each": "*",
+    "component/emitter": "*",
+    "component/enumerable": "*",
+    "visionmedia/superagent": "*"
+  },
+  "development": {
+    "component/assert": "*"
+  },
+  "scripts": [
+    "index.js",
+    "lib/collection.js",
+    "lib/listener.js"
+  ],
+  "main": "index.js",
+  "license": "MIT"
+}
